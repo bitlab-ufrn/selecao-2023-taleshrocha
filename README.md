@@ -1,36 +1,38 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-24ddc0f5d75046c5622901739e7c5dd533143b0c8e959d652212380cedb1ea36.svg)](https://classroom.github.com/a/1a1_PfEr)
-[![Open in Visual Studio Code](https://classroom.github.com/assets/open-in-vscode-718a45dd9cf7e7f842a935f5ebbe5719a5e09af4491e668f4dbf3b35d5cca122.svg)](https://classroom.github.com/online_ide?assignment_repo_id=10833993&assignment_repo_type=AssignmentRepo)
-# Seleção Bitlab 2023
+This is a [Next.js](https://nextjs.org/) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
 
-Olá, bem vindo ao desafio para seleção de bolsistas para o Bitlab 2023! Nesse documento você encontrará as instruções para a execução do seu desafio! Sem enrolação, vamos as instruções.
+## Getting Started
 
-## Desafio
+First, run the development server:
 
-Havia uma vez uma pequena empresa de tecnologia chamada "Segurança Online". Eles eram especializados em segurança cibernética e estavam comprometidos em ajudar as pessoas a navegar na Internet de forma segura.
+```bash
+npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+```
 
-Um dia, a equipe da "Segurança Online" foi contatada por um cliente preocupado com o conteúdo inapropriado que estava aparecendo em seu site. O cliente explicou que o site permitia que os usuários postassem comentários e que muitos desses comentários continham linguagem ofensiva e até mesmo ameaças violentas.
+Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-A equipe da "Segurança Online" entendeu imediatamente a gravidade do problema e se comprometeu a encontrar uma solução. Eles sabiam que a melhor maneira de lidar com esse tipo de situação era criar um algoritmo de detecção de conteúdo impróprio.
+You can start editing the page by modifying `pages/index.js`. The page auto-updates as you edit the file.
 
-Assim, suponha  que você foi o profissional escolhido pela "Segurança Online" para implementar tal solução.  **Logo, você deve criar um sistema capaz de detectar textos com conteúdo impróprio.**
+[API routes](https://nextjs.org/docs/api-routes/introduction) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.js`.
 
-> Entenda por conteúdo impróprio o texto que possui expressões ofensivos ou palavões.
+The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/api-routes/introduction) instead of React pages.
 
-Você pode criar um conjunto de palavras e expressões ofensivas, caso ache necessário.
+This project uses [`next/font`](https://nextjs.org/docs/basic-features/font-optimization) to automatically optimize and load Inter, a custom Google Font.
 
-### Apresentação
+## Learn More
 
-Para a utilização do seu algoritmo, crie uma interface simples __web__ que permita que o usuário escreva um texto e submeta a análise se contém ou não conteúdo ofensivo. Você deve apresentar na interface claramente o resultado obtido pelo algoritmo.
+To learn more about Next.js, take a look at the following resources:
 
-Você está livre para utilizar qualquer linguagem ou ferramenta.
+- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
+- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
 
-## Instruções
+You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js/) - your feedback and contributions are welcome!
 
-1. Acesso o link https://classroom.github.com/a/1a1_PfEr e aceite o convite
-1. Isso criará um repositório no seu nome, por onde deves enviar o seu código.
-1. Faça as alterações no repositório, comite e envie ao repositório remoto.
-1. Escreva um código limpo e de fácil compreensão
-1. Faça deploy para algum serviço de __cloud__ para que possamos acessar facilmente e testar sua aplicação. Sugestão https://vercel.com/
-1. Adicione a esse README instruções de acesso ao seu sistema
+## Deploy on Vercel
 
-## Acesso
+The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+
+Check out our [Next.js deployment documentation](https://nextjs.org/docs/deployment) for more details.
