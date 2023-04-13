@@ -1,43 +1,51 @@
 import Head from "next/head";
 import { useRef, useState } from "react";
 import { BsFillSendFill as SendIcon } from "react-icons/bs";
-import { badWords, ending } from "../badWords"
+import { badWords, endings, l33t } from "../badWords";
 
 export default function Home() {
   const textareaRef = useRef(null);
   const [hasBadWords, setHasBadWords] = useState(false);
 
-  function convertWordToRegexString(word) {
-    const l33t = { a: "4@", b: "8", e: "3", i: "1|!", l: "1", o: "0u", t: "7", u: "0o" };
+  /**
+   * This function creates a regex string for to identify a word and its variations
+   * @param {string} word
+   * @return {string} A regex
+   */
+  function createRegexString(word) {
+    /* Creates a string that is a partial regex to be added to the end of the regex word.
+     * It defines all endings that a word can have*/
+    let endingRegex = "";
+    endings.forEach((ending) => {
+      endingRegex = "|" + ending + endingRegex;
+    });
 
-    let end = ""
-    ending.forEach(e => {
-      end = "|" + e + end
-    })
+    // Change the last character of word to the ending regex
+    word = word.slice(0, -1) + `(${word.slice(-1)}${endingRegex})`;
 
-    word = word.slice(0, -1) + `(${word.slice(-1)}${end})`
-
+    /* Returns the regex of the word with all the vowels changed to a regex
+     * including their l33t similar*/
+    let l;
     return word.replace(/[a-z]/g, (c) => {
-      let l = l33t[c];
+      l = l33t[c];
       if (l == undefined) return `${c}+`;
       else return `[${c}${l}]+`;
     });
   }
 
   const badWordsRegexString =
-    "\\b(" + badWords.map(convertWordToRegexString).join("|") + ")\\b";
+    "\\b(" + badWords.map(createRegexString).join("|") + ")\\b";
 
   const badWordsRegex = new RegExp(badWordsRegexString, "ig");
-  console.log(badWordsRegex);
 
-  function analizeText() {
-    console.log(
-      textareaRef.current.value.slice(
+  // Checks if there is any bad words in the text and changes hasBadWords value
+  function checkText() {
+    setHasBadWords(
       textareaRef.current.value
         .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "")
-        .replace(/[^a-zA-Z0-9 ]/g, '')
-        .search(badWordsRegex), -1)
+        .replace(/[\u0300-\u036f]/g, "") // Removes accentuation
+        .replace(/[^a-zA-Z0-9 ]/g, "") // Removes especial characters
+        .search(badWordsRegex) != -1
     );
   }
 
@@ -69,29 +77,37 @@ export default function Home() {
                 focus:ring-0 text-neutral-50 placeholder:font-bold"
               placeholder="Escreva seu texto aqui"
               ref={textareaRef}
+              onKeyDown={(e) => {
+                if (e.key == "Enter" && !e.shiftKey) {
+                  e.preventDefault();
+                  checkText()
+                }
+              }}
             />
           </div>
 
           <button
             className="flex items-center justify-center bg-cyan-900 border-4 border-cyan-800 rounded-md
               h-32 text-neutral-50 p-4"
-            onClick={analizeText}
+            onClick={checkText}
           >
             Analisar <SendIcon />
           </button>
         </div>
 
+        {/*Result box*/}
         <div
           className="flex flex-col h-full w-full items-center justify-center 
           text-neutral-50 space-y-2"
         >
           <h2 className="font-bold text-2xl">Resultado</h2>
           <div
-            className="flex items-center justify-center w-full h-32 bg-neutral-800 
-             border-4 border-neutral-700 rounded-md p-2"
+            className={`flex items-center justify-center w-full h-32 bg-neutral-800 
+             border-4 border-neutral-700 rounded-md p-2 font-bold
+            ${hasBadWords ? "text-red-500" : "text-green-500"}`}
           >
             <span>
-              {badWords ? "Não existem" : "Existem"} palavras impróprias no
+              {hasBadWords ? "Existem" : "Não existem"} palavras impróprias no
               texto
             </span>
           </div>

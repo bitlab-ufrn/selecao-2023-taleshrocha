@@ -162,7 +162,7 @@ export const badWords = [
   "zureta",
 ]
 
-export const ending = [
+export const endings = [
   "ao",
   "inho",
   "inha",
@@ -171,3 +171,14 @@ export const ending = [
   "ozao",
   "azao"
 ]
+
+export const l33t = {
+      a: "4@",
+      b: "8",
+      e: "3",
+      i: "1|!",
+      l: "1",
+      o: "0u",
+      t: "7",
+      u: "0o",
+    };
