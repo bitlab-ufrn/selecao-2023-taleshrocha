@@ -1,35 +1,43 @@
 import Head from "next/head";
 import { useRef, useState } from "react";
 import { BsFillSendFill as SendIcon } from "react-icons/bs";
+import { badWords, ending } from "../badWords"
 
 export default function Home() {
-  const [textareaContent, setTextareaContent] = useState("");
-  const textareaRef = useRef(null)
+  const textareaRef = useRef(null);
   const [hasBadWords, setHasBadWords] = useState(false);
-  const badWords = ["cat", "dog"];
-
-  function escapeRegExp(string) {
-    return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
-  }
 
   function convertWordToRegexString(word) {
-    // Start by escaping any special characters that might be in the string:
-    word = escapeRegExp(word);
-    const l33t = { a: "4@", e: "3", i: "1|!", o: "0" };
+    const l33t = { a: "4@", b: "8", e: "3", i: "1|!", l: "1", o: "0u", t: "7", u: "0o" };
 
-    return word.replace(/[aeio]/g, (c) => `[${c}${l33t[c]}]+`);
+    let end = ""
+    ending.forEach(e => {
+      end = "|" + e + end
+    })
+
+    word = word.slice(0, -1) + `(${word.slice(-1)}${end})`
+
+    return word.replace(/[a-z]/g, (c) => {
+      let l = l33t[c];
+      if (l == undefined) return `${c}+`;
+      else return `[${c}${l}]+`;
+    });
   }
 
   const badWordsRegexString =
     "\\b(" + badWords.map(convertWordToRegexString).join("|") + ")\\b";
 
   const badWordsRegex = new RegExp(badWordsRegexString, "ig");
+  console.log(badWordsRegex);
 
-  function sendText() {
+  function analizeText() {
     console.log(
-      badWordsRegex.test(
-        textareaRef.current.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-      )
+      textareaRef.current.value.slice(
+      textareaRef.current.value
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/[^a-zA-Z0-9 ]/g, '')
+        .search(badWordsRegex), -1)
     );
   }
 
@@ -67,9 +75,9 @@ export default function Home() {
           <button
             className="flex items-center justify-center bg-cyan-900 border-4 border-cyan-800 rounded-md
               h-32 text-neutral-50 p-4"
-            onClick={sendText}
+            onClick={analizeText}
           >
-            Enviar <SendIcon />
+            Analisar <SendIcon />
           </button>
         </div>
 
