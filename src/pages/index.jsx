@@ -5,7 +5,7 @@ import { badWords, endings, l33t } from "../badWords";
 
 export default function Home() {
   const textareaRef = useRef(null);
-  const [hasBadWords, setHasBadWords] = useState(false);
+  const [foundBadWords, setFoundBadWords] = useState([]);
 
   /**
    * This function creates a regex string for to identify a word and its variations
@@ -40,13 +40,13 @@ export default function Home() {
 
   // Checks if there is any bad words in the text and changes hasBadWords value
   function checkText() {
-    setHasBadWords(
-      textareaRef.current.value
-        .normalize("NFD")
-        .replace(/[\u0300-\u036f]/g, "") // Removes accentuation
-        .replace(/[^a-zA-Z0-9 ]/g, "") // Removes especial characters
-        .search(badWordsRegex) != -1
-    );
+    const matches = textareaRef.current.value
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "") // Removes accentuation
+      .replace(/[^a-zA-Z0-9 ]/g, "") // Removes especial characters
+      .match(badWordsRegex);
+
+    setFoundBadWords(matches ? [...new Set(matches)] : []);
   }
 
   return (
@@ -68,7 +68,7 @@ export default function Home() {
           {/*Custom Textarea*/}
           <div
             className={`
-            group relative flex flex-col w-full h-32 bg-neutral-800 
+            group relative flex flex-col w-full h-72 bg-neutral-800 
             overflow-hidden border-4 border-neutral-700 rounded-md p-2`}
           >
             <textarea
@@ -80,7 +80,7 @@ export default function Home() {
               onKeyDown={(e) => {
                 if (e.key == "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  checkText()
+                  checkText();
                 }
               }}
             />
@@ -103,13 +103,26 @@ export default function Home() {
           <h2 className="font-bold text-2xl">Resultado</h2>
           <div
             className={`flex items-center justify-center w-full h-32 bg-neutral-800 
-             border-4 border-neutral-700 rounded-md p-2 font-bold
-            ${hasBadWords ? "text-red-500" : "text-green-500"}`}
+             border-4 border-neutral-700 rounded-md p-2 font-bold overflow-x-scroll
+            ${foundBadWords.length != 0 ? "text-red-500" : "text-green-500"}`}
           >
-            <span>
-              {hasBadWords ? "Existem" : "Não existem"} palavras impróprias no
-              texto
-            </span>
+            {foundBadWords.length != 0 ? (
+              <div className="flex flex-col items-center justify-center
+                h-full break-all">
+                <p>Existem palavras impróprias no texto!</p>
+                <ul className="list-none h-min w-max overflow-y-scroll p-2 rounded-md 
+                  break-all bg-neutral-700 text-center">
+                  {foundBadWords.map((word, index) => (
+                    <li key={index}>
+                    {word}
+                    </li>
+                  )
+                  )}
+                </ul>
+              </div>
+            ) : (
+              <p>Não existem palavras impróprias no texto</p>
+            )}
           </div>
         </div>
       </main>
