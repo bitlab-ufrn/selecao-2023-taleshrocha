@@ -1,9 +1,12 @@
 import Head from "next/head";
-import { useState } from "react";
+import { useRef, useState } from "react";
+import { BsFillSendFill as SendIcon } from "react-icons/bs";
 
 export default function Home() {
-  const [isTextAreaFocused, setIsTextAreaFocused] = useState(false);
-  const [commentContent, setCommentContent] = useState("");
+  const [textareaContent, setTextareaContent] = useState("");
+  const textareaRef = useRef(null)
+  const [hasBadWords, setHasBadWords] = useState(false);
+  const badWords = ["cat", "dog"];
 
   function escapeRegExp(string) {
     return string.replace(/[.*+\-?^${}()|[\]\\]/g, "\\$&"); // $& means the whole matched string
@@ -17,25 +20,17 @@ export default function Home() {
     return word.replace(/[aeio]/g, (c) => `[${c}${l33t[c]}]+`);
   }
 
-  const badWords = ["cat", "dog"];
-
   const badWordsRegexString =
     "\\b(" + badWords.map(convertWordToRegexString).join("|") + ")\\b";
 
-  console.log(badWordsRegexString);
-
   const badWordsRegex = new RegExp(badWordsRegexString, "ig");
 
-  function submitComment() {
-    if (
+  function sendText() {
+    console.log(
       badWordsRegex.test(
-        commentContent.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+        textareaRef.current.value.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
       )
-    )
-      return true;
-
-    setCommentContent("");
-    return false;
+    );
   }
 
   return (
@@ -48,59 +43,51 @@ export default function Home() {
       </Head>
 
       <main
-        className="flex min-h-screen flex-col items-center justify-center p-24
-          bg-neutral-900 space-y-4"
+        className="flex min-h-screen flex-col items-center justify-between px-48
+           py-24 bg-neutral-900 space-y-4"
       >
-        <div
-          className={`
-            group relative flex flex-col w-full h-full bg-gray-900 
-            overflow-hidden
-            text-white border-4 border-gray-800 rounded-lg p-2
-            ${
-              badWordsRegex.test(commentContent) &&
-              isTextAreaFocused &&
-              "border-red-600"
-            }
-        `}
-        >
-          <span
+        <h1 className="text-neutral-50 font-bold text-3xl">Detector</h1>
+
+        <div className="flex items-center justify-center w-full h-full space-x-2">
+          {/*Custom Textarea*/}
+          <div
             className={`
-              absolute right-48 -top-4 invisible
-              ${
-                badWordsRegex.test(commentContent) &&
-                isTextAreaFocused &&
-                "!visible"
-              }
-          `}
+            group relative flex flex-col w-full h-32 bg-neutral-800 
+            overflow-hidden border-4 border-neutral-700 rounded-md p-2`}
           >
-            <span
-              className={`
-                fixed text-red-500 bg-gray-900 px-2
-            `}
-            >
-              Conteúdo impróprio
-            </span>
-          </span>
-          <textarea
-            className="resize-none w-full h-full text-white bg-inherit 
-              outline-none border-transparent focus:border-transparent 
-              focus:ring-0"
-            placeholder="Adicione o seu comentário aqui"
-            value={commentContent}
-            onChange={(e) => {
-              setCommentContent(e.target.value);
-            }}
-            onFocus={() => setIsTextAreaFocused(true)}
-            onBlur={() => setIsTextAreaFocused(false)}
-          />
+            <textarea
+              className="resize-none w-full h-full bg-inherit 
+                outline-none border-transparent focus:border-transparent 
+                focus:ring-0 text-neutral-50 placeholder:font-bold"
+              placeholder="Escreva seu texto aqui"
+              ref={textareaRef}
+            />
+          </div>
+
+          <button
+            className="flex items-center justify-center bg-cyan-900 border-4 border-cyan-800 rounded-md
+              h-32 text-neutral-50 p-4"
+            onClick={sendText}
+          >
+            Enviar <SendIcon />
+          </button>
         </div>
 
-        <button 
-          className="bg-neutral-800 border-2 border-neutral-500 rounded-full"
-          onClick={submitComment}
+        <div
+          className="flex flex-col h-full w-full items-center justify-center 
+          text-neutral-50 space-y-2"
         >
-          Enviar
-        </button>
+          <h2 className="font-bold text-2xl">Resultado</h2>
+          <div
+            className="flex items-center justify-center w-full h-32 bg-neutral-800 
+             border-4 border-neutral-700 rounded-md p-2"
+          >
+            <span>
+              {badWords ? "Não existem" : "Existem"} palavras impróprias no
+              texto
+            </span>
+          </div>
+        </div>
       </main>
     </>
   );
