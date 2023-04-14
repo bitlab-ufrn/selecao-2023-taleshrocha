@@ -15,7 +15,6 @@ export default function Home() {
   const inputRef = useRef(null);
 
   const [isBadWordsVisible, setIsBadWordsVisible] = useState(false);
-
   const [foundBadWords, setFoundBadWords] = useState([]);
   const [badWords, setBadWords] = useState(badWordsList);
   const [endings, setEndings] = useState(endingsList);
@@ -47,7 +46,7 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>Detector</title>
+        <title>Detector | Tales Rocha</title>
         <meta name="description" content="Detector" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
