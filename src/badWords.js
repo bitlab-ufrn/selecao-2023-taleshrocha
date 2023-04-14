@@ -1,4 +1,4 @@
-export const badWords = [
+export const badWordsList = [
   "porra",
   "animaldeteta",
   "anormal",
@@ -159,7 +159,7 @@ export const badWords = [
   "zureta",
 ];
 
-export const endings = [
+export const endingsList = [
   "ao",
   "inho",
   "oinho",

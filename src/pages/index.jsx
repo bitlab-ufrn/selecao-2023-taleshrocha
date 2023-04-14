@@ -1,60 +1,31 @@
 import Head from "next/head";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { IoSend as SendIcon } from "react-icons/io5";
 import { BsFillPlusCircleFill as AddIcon } from "react-icons/bs";
 import { FiDelete as DeleteIcon } from "react-icons/fi";
-import { badWords, endings, l33t } from "../badWords";
+import {
+  AiFillEye as VisibleIcon,
+  AiFillEyeInvisible as InvisibleIcon,
+} from "react-icons/ai";
+import { badWordsList, endingsList } from "../badWords";
+import { createRegexString, checkText } from "../utils";
 
 export default function Home() {
   const textareaRef = useRef(null);
   const inputRef = useRef(null);
+
+  const [isBadWordsVisible, setIsBadWordsVisible] = useState(false);
+
   const [foundBadWords, setFoundBadWords] = useState([]);
-  const [isListOpen, setIsListOpen] = useState(false);
+  const [badWords, setBadWords] = useState(badWordsList);
+  const [endings, setEndings] = useState(endingsList);
+  const [badWordsRegex, setBadWordsRegex] = useState(
+    new RegExp(createRegexString(badWords, endings), "ig")
+  );
 
-  /**
-   * This function creates a regex string for to identify a word and its variations
-   * @param {string} word
-   * @return {string} A regex
-   */
-  function createRegexString(word) {
-    /* Creates a string that is a partial regex to be added to the end of the regex word.
-     * It defines all endings that a word can have*/
-    let endingRegex = "";
-    endings.forEach((ending) => {
-      endingRegex = "|" + ending + endingRegex;
-    });
-
-    // Change the last character of word to the ending regex
-    word = word.slice(0, -1) + `(${word.slice(-1)}${endingRegex})`;
-
-    /* Returns the regex of the word with all the vowels changed to a regex
-     * including their l33t similar*/
-    let l;
-    return word.replace(/[a-z]/g, (c) => {
-      l = l33t[c];
-      if (l == undefined) return `\\s*[${c}#*$]+`;
-      else return `\\s*[${c}${l}*#$]+`;
-    });
-  }
-
-  let badWordsRegexString =
-    "\\b(" +
-    badWords.map(createRegexString).join("[sz]*|") +
-    ")(\\W|\\n|\\s|$)";
-  //console.log(badWordsRegexString);
-
-  let badWordsRegex = new RegExp(badWordsRegexString, "ig");
-
-  // Checks if there is any bad words in the text and changes hasBadWords value
-  function checkText() {
-    const matches = textareaRef.current.value
-      .normalize("NFD")
-      .replace(/[\u0300-\u036f]/g, "") // Removes accentuation
-      .replace(/[^\w!@#$%&*\n ]/g, "") // Removes especial characters diferent from !@#$%&* and new lines
-      .match(badWordsRegex);
-
-    setFoundBadWords(matches ? [...new Set(matches)] : []);
-  }
+  useEffect(() => {
+    setBadWordsRegex(new RegExp(createRegexString(badWords, endings), "ig"));
+  }, [badWords]);
 
   /**
    * This function adds a bad word to the bad word's list "badWords"
@@ -62,34 +33,15 @@ export default function Home() {
    */
   function addBadWord(badWord) {
     //console.log(badWord);
-    badWords.push(badWord);
-
-    // Updates badWords regex
-    badWordsRegexString =
-      "\\b(" +
-      badWords.map(createRegexString).join("[sz]*|") +
-      ")(\\W|\\n|\\s|$)";
-    //console.log(badWordsRegexString);
-
-    badWordsRegex = new RegExp(badWordsRegexString, "ig");
+    setBadWords((badWords) => [...badWords, badWord]);
   }
 
   /**
    * This function adds a bad word to the bad word's list "badWords"
    * @param {string} badWord
    */
-  function removeBadWord(index) {
-    console.log(index);
-    badWords.splice(index, 1);
-
-    // Updates badWords regex
-    badWordsRegexString =
-      "\\b(" +
-      badWords.map(createRegexString).join("[sz]*|") +
-      ")(\\W|\\n|\\s|$)";
-    //console.log(badWordsRegexString);
-
-    badWordsRegex = new RegExp(badWordsRegexString, "ig");
+  function removeBadWord(word) {
+    setBadWords(badWords.filter((badWord) => badWord !== word));
   }
 
   return (
@@ -137,7 +89,8 @@ export default function Home() {
               onKeyDown={(e) => {
                 if (e.key == "Enter" && !e.shiftKey) {
                   e.preventDefault();
-                  checkText();
+                  const matches = checkText(badWordsRegex, e.target.value);
+                  setFoundBadWords(matches ? [...new Set(matches)] : []);
                 }
               }}
             />
@@ -151,7 +104,13 @@ export default function Home() {
               w-full h-20 text-xl
               md:w-24 md:h-72 md:flex-col
             "
-            onClick={checkText}
+            onClick={() => {
+              const matches = checkText(
+                badWordsRegex,
+                textareaRef.current.value
+              );
+              setFoundBadWords(matches ? [...new Set(matches)] : []);
+            }}
           >
             Analisar{" "}
             <SendIcon
@@ -162,69 +121,18 @@ export default function Home() {
           </button>
         </div>
 
-        {/*Add bad word input and button*/}
-        <div className="relative flex flex-col items-center justify-center w-full md:w-5/6">
-          <input
-            className="bg-neutral-800 focus:outline-none border-4 w-full
-              border-neutral-700 rounded-full p-2 pr-10 pl-4 
-              placeholder:font-bold placeholder:text-sm
-            "
-            placeholder="Adicione um palavrão"
-            ref={inputRef}
-            onKeyDown={(e) => {
-              if (e.key == "Enter" && !e.shiftKey) {
-                //e.preventDefault();
-                addBadWord(e.target.value);
-                e.target.value = "";
-              }
-            }}
-          />
-          <button
-            className="transition-all hover:scale-110 absolute z-10 
-            inset-y-0 right-2 text-center text-cyan-800 hover:text-cyan-700
-            text-3xl"
-            onClick={() => {
-              addBadWord(inputRef.current.value);
-              inputRef.current.value = "";
-            }}
-          >
-            <AddIcon />
-          </button>
-        </div>
-
-        {/*List of all bad words*/}
-        <div className="flex flex-col items-center justify-center w-max h-full border-4 border-neutral-700">
-          <button onClick={() => setIsListOpen(!isListOpen)}>
-            Abrir lista de palavrões
-          </button>
-          {isListOpen && (
-            <div className="flex flex-col overflow-x-scroll h-52 py-2 px-6">
-              {badWords.map((word, index) => (
-                <div className="inline-flex justify-between" key={index + "d"}>
-                  <li key={index}>{word}</li>
-                  <button 
-                    key={index + "b"}
-                    onClick={() => removeBadWord(index)}
-                  >
-                    <DeleteIcon key={index + "i"} />
-                  </button>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-
-        {/*Result box*/}
+        {/*Down part*/}
         <div
-          className="flex flex-col h-full w-full items-center justify-center 
-           space-y-2"
+          className="flex flex-col w-full items-center justify-between
+           space-y-2
+           md:flex-row md:space-y-0 md:space-x-4
+          "
         >
-          <h2 className="font-bold text-2xl">Resultado</h2>
-
+          {/*Result box*/}
           <div
             className={`flex items-center justify-center w-full h-52 bg-neutral-800 
               border-4 border-neutral-700 rounded-md p-2 font-bold overflow-x-scroll
-              break-words text-md md:text-xl md:w-5/6
+              break-words text-md md:text-xl
               ${foundBadWords.length != 0 ? "text-red-500" : "text-green-500"}`}
           >
             {foundBadWords.length != 0 ? (
@@ -245,6 +153,70 @@ export default function Home() {
             ) : (
               <p>Não existem palavras impróprias no texto</p>
             )}
+          </div>
+
+          {/*Left box*/}
+          <div
+            className="flex flex-col items-center justify-center h-52
+              w-full bg-neutral-800 border-4 border-neutral-700 rounded-md
+              overflow-hidden p-2
+            "
+          >
+            {/*Add bad word input and button*/}
+            <div className="relative w-full pr-10 pl-4">
+              <input
+                className="focus:outline-none w-full placeholder:font-bold 
+              placeholder:text-sm bg-transparent
+            "
+                placeholder="Adicione um palavrão"
+                ref={inputRef}
+                onKeyDown={(e) => {
+                  if (e.key == "Enter" && !e.shiftKey) {
+                    //e.preventDefault();
+                    addBadWord(e.target.value);
+                    e.target.value = "";
+                  }
+                }}
+              />
+              <button
+                className="transition-all hover:scale-110 absolute z-10 
+              inset-y-0 right-2 text-center text-cyan-700 hover:text-cyan-600
+              text-3xl
+            "
+                onClick={() => {
+                  addBadWord(inputRef.current.value);
+                  inputRef.current.value = "";
+                }}
+              >
+                <AddIcon />
+              </button>
+            </div>
+            {/*Make visible buttom*/}
+            <div className="flex items-center justify-center w-full h-full p-2">
+              <p className="font-semibold">Lista de palavrões</p>
+              <button
+                className="ml-2 transition-all hover:scale-110 text-center 
+                text-cyan-700 hover:text-cyan-600 text-3xl
+            "
+                onClick={() => setIsBadWordsVisible(!isBadWordsVisible)}
+              >
+                {isBadWordsVisible ? <VisibleIcon /> : <InvisibleIcon />}
+              </button>
+            </div>
+
+            {/*List of all bad words*/}
+            <div className="flex flex-col overflow-x-scroll w-full px-4 py-4 font-semibold">
+              {badWords.map((word, index) => (
+                <ul className="inline-flex justify-between" key={index + "d"}>
+                  <li key={index}>
+                    {isBadWordsVisible ? word : "*".repeat(word.length)}
+                  </li>
+                  <button key={index + "b"} onClick={() => removeBadWord(word)}>
+                    <DeleteIcon className="text-red-700" key={index + "i"} />
+                  </button>
+                </ul>
+              ))}
+            </div>
           </div>
         </div>
       </main>
