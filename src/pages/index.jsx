@@ -28,14 +28,15 @@ export default function Home() {
     let l;
     return word.replace(/[a-z]/g, (c) => {
       l = l33t[c];
-      if (l == undefined) return `${c}+`;
-      else return `[${c}${l}]+`;
+      if (l == undefined) return `\\s*[${c}#*$]+`;
+      else return `\\s*[${c}${l}*#$]+`;
     });
   }
 
   const badWordsRegexString =
-    "\\b(" + badWords.map(createRegexString).join("|") + ")\\b";
+    "(\\W|^)(" + badWords.map(createRegexString).join("[sz]*|") + ")(\\W|\\n|\\s|$)";
 
+  console.log(badWordsRegexString)
   const badWordsRegex = new RegExp(badWordsRegexString, "ig");
 
   // Checks if there is any bad words in the text and changes hasBadWords value
@@ -43,7 +44,7 @@ export default function Home() {
     const matches = textareaRef.current.value
       .normalize("NFD")
       .replace(/[\u0300-\u036f]/g, "") // Removes accentuation
-      .replace(/[^a-zA-Z0-9 ]/g, "") // Removes especial characters
+      .replace(/[^\w!@#$%&*\n ]/g, "") // Removes especial characters diferent from !@#$%&* and new lines
       .match(badWordsRegex);
 
     setFoundBadWords(matches ? [...new Set(matches)] : []);
