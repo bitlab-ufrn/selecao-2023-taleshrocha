@@ -59,7 +59,6 @@ export const badWords = [
   "gonorreia",
   "gordoescroto",
   "gozado",
-  "herege",
   "idiota",
   "ignorante",
   "imbecil",

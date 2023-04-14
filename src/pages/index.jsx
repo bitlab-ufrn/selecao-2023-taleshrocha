@@ -1,6 +1,6 @@
 import Head from "next/head";
 import { useRef, useState } from "react";
-import { BsFillSendFill as SendIcon } from "react-icons/bs";
+import { IoSend as SendIcon } from "react-icons/io5";
 import { badWords, endings, l33t } from "../badWords";
 
 export default function Home() {
@@ -34,9 +34,10 @@ export default function Home() {
   }
 
   const badWordsRegexString =
-    "(\\W|^)(" + badWords.map(createRegexString).join("[sz]*|") + ")(\\W|\\n|\\s|$)";
+    "\\b(" +
+    badWords.map(createRegexString).join("[sz]*|") +
+    ")(\\W|\\n|\\s|$)";
 
-  console.log(badWordsRegexString)
   const badWordsRegex = new RegExp(badWordsRegexString, "ig");
 
   // Checks if there is any bad words in the text and changes hasBadWords value
@@ -47,6 +48,7 @@ export default function Home() {
       .replace(/[^\w!@#$%&*\n ]/g, "") // Removes especial characters diferent from !@#$%&* and new lines
       .match(badWordsRegex);
 
+    console.log(matches)
     setFoundBadWords(matches ? [...new Set(matches)] : []);
   }
 
@@ -60,12 +62,24 @@ export default function Home() {
       </Head>
 
       <main
-        className="flex min-h-screen flex-col items-center justify-between px-48
-           py-24 bg-neutral-900 space-y-4"
+        className="flex min-h-screen flex-col items-center justify-between 
+          bg-neutral-900 space-y-4 text-neutral-50
+          px-4 py-6
+          md:px-8 md:py-10
+        "
       >
-        <h1 className="text-neutral-50 font-bold text-3xl">Detector</h1>
+        <h1 className="font-bold text-3xl text-center">Detector de palavões</h1>
+        <h2 className="text-xl px-4 md-px-12 text-center font-semibold">
+          Escreva o seu texto e verifique se ele contém algum palavrão
+        </h2>
 
-        <div className="flex items-center justify-center w-full h-full space-x-2">
+        <div
+          className="flex  items-center justify-center w-full 
+              h-full 
+              flex-col space-y-2
+              md:flex-row md:space-x-2 md:space-y-0
+            "
+        >
           {/*Custom Textarea*/}
           <div
             className={`
@@ -75,7 +89,7 @@ export default function Home() {
             <textarea
               className="resize-none w-full h-full bg-inherit 
                 outline-none border-transparent focus:border-transparent 
-                focus:ring-0 text-neutral-50 placeholder:font-bold"
+                focus:ring-0 placeholder:font-bold"
               placeholder="Escreva seu texto aqui"
               ref={textareaRef}
               onKeyDown={(e) => {
@@ -88,37 +102,50 @@ export default function Home() {
           </div>
 
           <button
-            className="flex items-center justify-center bg-cyan-900 border-4 border-cyan-800 rounded-md
-              h-32 text-neutral-50 p-4"
+            className="group flex items-center justify-center bg-cyan-900 border-4 
+              border-cyan-800 rounded-md p-4 text-2xl font-bold whitespace-pre
+              transition-all hover:scale-[102%] hover:bg-cyan-800 
+              hover:border-cyan-700
+              w-full h-24
+              md:w-32 md:h-72 md:flex-col
+            "
             onClick={checkText}
           >
-            Analisar <SendIcon />
+            Analisar{" "}
+            <SendIcon
+              className="translate-y-[3px] group-hover:translate-x-2 
+                transition-all md:group-hover:translate-x-0 
+                md:group-hover:translate-y-2"
+            />
           </button>
         </div>
 
         {/*Result box*/}
         <div
-          className="flex flex-col h-full w-full items-center justify-center 
-          text-neutral-50 space-y-2"
+          className="flex flex-col h-full w-max items-center justify-center 
+           space-y-2"
         >
           <h2 className="font-bold text-2xl">Resultado</h2>
+
           <div
             className={`flex items-center justify-center w-full h-32 bg-neutral-800 
-             border-4 border-neutral-700 rounded-md p-2 font-bold overflow-x-scroll
-            ${foundBadWords.length != 0 ? "text-red-500" : "text-green-500"}`}
+              border-4 border-neutral-700 rounded-md p-2 font-bold overflow-x-scroll
+              break-words text-xl
+              ${foundBadWords.length != 0 ? "text-red-500" : "text-green-500"}`}
           >
             {foundBadWords.length != 0 ? (
-              <div className="flex flex-col items-center justify-center
-                h-full break-all">
+              <div
+                className="flex flex-col items-center justify-center
+                h-full"
+              >
                 <p>Existem palavras impróprias no texto!</p>
-                <ul className="list-none h-min w-max overflow-y-scroll p-2 rounded-md 
-                  break-all bg-neutral-700 text-center">
+                <ul
+                  className="list-none h-full w-max overflow-y-scroll p-2 rounded-md 
+                  break-all bg-transparent text-center"
+                >
                   {foundBadWords.map((word, index) => (
-                    <li key={index}>
-                    {word}
-                    </li>
-                  )
-                  )}
+                    <li key={index}>{word}</li>
+                  ))}
                 </ul>
               </div>
             ) : (
