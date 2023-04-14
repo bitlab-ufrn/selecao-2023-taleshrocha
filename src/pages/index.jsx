@@ -1,10 +1,12 @@
 import Head from "next/head";
 import { useRef, useState } from "react";
 import { IoSend as SendIcon } from "react-icons/io5";
+import { BsFillPlusCircleFill as AddIcon } from "react-icons/bs";
 import { badWords, endings, l33t } from "../badWords";
 
 export default function Home() {
   const textareaRef = useRef(null);
+  const inputRef = useRef(null);
   const [foundBadWords, setFoundBadWords] = useState([]);
 
   /**
@@ -33,12 +35,13 @@ export default function Home() {
     });
   }
 
-  const badWordsRegexString =
+  let badWordsRegexString =
     "\\b(" +
     badWords.map(createRegexString).join("[sz]*|") +
     ")(\\W|\\n|\\s|$)";
+  //console.log(badWordsRegexString);
 
-  const badWordsRegex = new RegExp(badWordsRegexString, "ig");
+  let badWordsRegex = new RegExp(badWordsRegexString, "ig");
 
   // Checks if there is any bad words in the text and changes hasBadWords value
   function checkText() {
@@ -48,8 +51,25 @@ export default function Home() {
       .replace(/[^\w!@#$%&*\n ]/g, "") // Removes especial characters diferent from !@#$%&* and new lines
       .match(badWordsRegex);
 
-    console.log(matches)
     setFoundBadWords(matches ? [...new Set(matches)] : []);
+  }
+
+  /**
+   * This function adds a bad word to the bad word's list "badWords"
+   * @param {string} badWord
+   */
+  function addBadWord(badWord) {
+    console.log(badWord);
+    badWords.push(badWord);
+
+    // Updates badWords regex
+    badWordsRegexString =
+      "\\b(" +
+      badWords.map(createRegexString).join("[sz]*|") +
+      ")(\\W|\\n|\\s|$)";
+    //console.log(badWordsRegexString);
+
+    badWordsRegex = new RegExp(badWordsRegexString, "ig");
   }
 
   return (
@@ -68,10 +88,42 @@ export default function Home() {
           md:px-8 md:py-10
         "
       >
-        <h1 className="font-bold text-3xl text-center">Detector de palavões</h1>
+        <h1 className="font-bold text-3xl text-center">
+          Detector de palavrões
+        </h1>
         <h2 className="text-xl px-4 md-px-12 text-center font-semibold">
           Escreva o seu texto e verifique se ele contém algum palavrão
         </h2>
+
+        {/*Add bad word input and button*/}
+        <div className="relative flex items-center justify-center w-full md:w-5/6">
+          <input
+            className="bg-neutral-800 focus:outline-none border-4 w-full
+              border-neutral-700 rounded-full p-2 pr-10 pl-4 
+              placeholder:font-bold placeholder:text-sm
+            "
+            placeholder="Adicione um palavrão"
+            ref={inputRef}
+            onKeyDown={(e) => {
+              if (e.key == "Enter" && !e.shiftKey) {
+                //e.preventDefault();
+                addBadWord(e.target.value);
+                e.target.value = ""
+              }
+            }}
+          />
+          <button
+            className="transition-all hover:scale-110 absolute z-10 
+            inset-y-0 right-2 text-center text-cyan-800 hover:text-cyan-700
+            text-3xl"
+            onClick={() => {
+              addBadWord(inputRef.current.value);
+              inputRef.current.value = "";
+            }}
+          >
+            <AddIcon />
+          </button>
+        </div>
 
         <div
           className="flex  items-center justify-center w-full 
@@ -103,11 +155,11 @@ export default function Home() {
 
           <button
             className="group flex items-center justify-center bg-cyan-900 border-4 
-              border-cyan-800 rounded-md p-4 text-2xl font-bold whitespace-pre
+              border-cyan-800 rounded-md p-4 font-bold whitespace-pre
               transition-all hover:scale-[102%] hover:bg-cyan-800 
               hover:border-cyan-700
-              w-full h-24
-              md:w-32 md:h-72 md:flex-col
+              w-full h-20 text-xl
+              md:w-24 md:h-72 md:flex-col
             "
             onClick={checkText}
           >
@@ -122,15 +174,15 @@ export default function Home() {
 
         {/*Result box*/}
         <div
-          className="flex flex-col h-full w-max items-center justify-center 
+          className="flex flex-col h-full w-full items-center justify-center 
            space-y-2"
         >
           <h2 className="font-bold text-2xl">Resultado</h2>
 
           <div
-            className={`flex items-center justify-center w-full h-32 bg-neutral-800 
+            className={`flex items-center justify-center w-full h-52 bg-neutral-800 
               border-4 border-neutral-700 rounded-md p-2 font-bold overflow-x-scroll
-              break-words text-xl
+              break-words text-md md:text-xl md:w-5/6
               ${foundBadWords.length != 0 ? "text-red-500" : "text-green-500"}`}
           >
             {foundBadWords.length != 0 ? (
