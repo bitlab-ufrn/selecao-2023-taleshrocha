@@ -36,6 +36,7 @@ Você está livre para utilizar qualquer linguagem ou ferramenta.
 ## Acesso
 
 ### Vercel
+Veja o deploy em [selecao-2023-taleshrocha.vercel.app](selecao-2023-taleshrocha.vercel.app).
 
 ### Local
 Para executar o servidor:
