@@ -2,12 +2,14 @@ import Head from "next/head";
 import { useRef, useState } from "react";
 import { IoSend as SendIcon } from "react-icons/io5";
 import { BsFillPlusCircleFill as AddIcon } from "react-icons/bs";
+import { FiDelete as DeleteIcon } from "react-icons/fi";
 import { badWords, endings, l33t } from "../badWords";
 
 export default function Home() {
   const textareaRef = useRef(null);
   const inputRef = useRef(null);
   const [foundBadWords, setFoundBadWords] = useState([]);
+  const [isListOpen, setIsListOpen] = useState(false);
 
   /**
    * This function creates a regex string for to identify a word and its variations
@@ -59,8 +61,26 @@ export default function Home() {
    * @param {string} badWord
    */
   function addBadWord(badWord) {
-    console.log(badWord);
+    //console.log(badWord);
     badWords.push(badWord);
+
+    // Updates badWords regex
+    badWordsRegexString =
+      "\\b(" +
+      badWords.map(createRegexString).join("[sz]*|") +
+      ")(\\W|\\n|\\s|$)";
+    //console.log(badWordsRegexString);
+
+    badWordsRegex = new RegExp(badWordsRegexString, "ig");
+  }
+
+  /**
+   * This function adds a bad word to the bad word's list "badWords"
+   * @param {string} badWord
+   */
+  function removeBadWord(index) {
+    console.log(index);
+    badWords.splice(index, 1);
 
     // Updates badWords regex
     badWordsRegexString =
@@ -94,36 +114,6 @@ export default function Home() {
         <h2 className="text-xl px-4 md-px-12 text-center font-semibold">
           Escreva o seu texto e verifique se ele contém algum palavrão
         </h2>
-
-        {/*Add bad word input and button*/}
-        <div className="relative flex items-center justify-center w-full md:w-5/6">
-          <input
-            className="bg-neutral-800 focus:outline-none border-4 w-full
-              border-neutral-700 rounded-full p-2 pr-10 pl-4 
-              placeholder:font-bold placeholder:text-sm
-            "
-            placeholder="Adicione um palavrão"
-            ref={inputRef}
-            onKeyDown={(e) => {
-              if (e.key == "Enter" && !e.shiftKey) {
-                //e.preventDefault();
-                addBadWord(e.target.value);
-                e.target.value = ""
-              }
-            }}
-          />
-          <button
-            className="transition-all hover:scale-110 absolute z-10 
-            inset-y-0 right-2 text-center text-cyan-800 hover:text-cyan-700
-            text-3xl"
-            onClick={() => {
-              addBadWord(inputRef.current.value);
-              inputRef.current.value = "";
-            }}
-          >
-            <AddIcon />
-          </button>
-        </div>
 
         <div
           className="flex  items-center justify-center w-full 
@@ -170,6 +160,58 @@ export default function Home() {
                 md:group-hover:translate-y-2"
             />
           </button>
+        </div>
+
+        {/*Add bad word input and button*/}
+        <div className="relative flex flex-col items-center justify-center w-full md:w-5/6">
+          <input
+            className="bg-neutral-800 focus:outline-none border-4 w-full
+              border-neutral-700 rounded-full p-2 pr-10 pl-4 
+              placeholder:font-bold placeholder:text-sm
+            "
+            placeholder="Adicione um palavrão"
+            ref={inputRef}
+            onKeyDown={(e) => {
+              if (e.key == "Enter" && !e.shiftKey) {
+                //e.preventDefault();
+                addBadWord(e.target.value);
+                e.target.value = "";
+              }
+            }}
+          />
+          <button
+            className="transition-all hover:scale-110 absolute z-10 
+            inset-y-0 right-2 text-center text-cyan-800 hover:text-cyan-700
+            text-3xl"
+            onClick={() => {
+              addBadWord(inputRef.current.value);
+              inputRef.current.value = "";
+            }}
+          >
+            <AddIcon />
+          </button>
+        </div>
+
+        {/*List of all bad words*/}
+        <div className="flex flex-col items-center justify-center w-max h-full border-4 border-neutral-700">
+          <button onClick={() => setIsListOpen(!isListOpen)}>
+            Abrir lista de palavrões
+          </button>
+          {isListOpen && (
+            <div className="flex flex-col overflow-x-scroll h-52 py-2 px-6">
+              {badWords.map((word, index) => (
+                <div className="inline-flex justify-between" key={index + "d"}>
+                  <li key={index}>{word}</li>
+                  <button 
+                    key={index + "b"}
+                    onClick={() => removeBadWord(index)}
+                  >
+                    <DeleteIcon key={index + "i"} />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         {/*Result box*/}
